@@ -246,15 +246,28 @@ function App() {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(device => device.kind === 'videoinput');
       setAvailableCameras(videoDevices);
-      if (videoDevices.length > 0 && !selectedCamera) {
-        console.log("Defaulting to first camera: " + (videoDevices[0].label || videoDevices[0].deviceId));
-        setSelectedCamera(videoDevices[0].deviceId);
-      } else if (videoDevices.length === 0) {
-        console.warn("No video input devices found.");
+
+      if (videoDevices.length > 0) {
+        // Get the current value of selectedCamera directly, as we're in the same scope.
+        // No need for setSelectedCamera(prev => ...) pattern here unless complex logic based on prev is needed.
+        const currentSelectedDeviceId = selectedCamera; 
+        const isCurrentSelectedStillValid = videoDevices.some(d => d.deviceId === currentSelectedDeviceId);
+
+        if (!currentSelectedDeviceId || !isCurrentSelectedStillValid) {
+          // If no camera is selected, or the selected one is no longer in the list,
+          // default to the first available one.
+          console.log(`Defaulting or updating selected camera to: ${videoDevices[0].label || videoDevices[0].deviceId}`);
+          setSelectedCamera(videoDevices[0].deviceId);
+        }
+        // If currentSelectedDeviceId is valid and present, do nothing, it remains selected.
+      } else {
+        console.warn("No video input devices found during enumeration.");
+        setSelectedCamera(''); // Clear selected camera if no devices are found
       }
-      // console.log("Available cameras set:", videoDevices); // Can be noisy
     } catch (err) {
       console.error("Error enumerating cameras:", err);
+      setAvailableCameras([]);
+      setSelectedCamera('');
     }
   };
 
@@ -264,7 +277,7 @@ function App() {
       if (!session) {
         try {
           setModelLoading(true);
-          const newSession = await ort.InferenceSession.create('./models/yolo11n-2.onnx', {
+          const newSession = await ort.InferenceSession.create('./models/yolo11n.onnx', {
             executionProviders: ['webgpu', 'wasm'],
             graphOptimizationLevel: 'all',
           });
@@ -316,25 +329,37 @@ function App() {
   }, [detectionMode, session, availableCameras.length]);
 
   const startWebcam = async () => {
-    if (videoRef.current && selectedCamera) {
+    if (videoRef.current) { 
       try {
-        // if (canvasRef.current) { // Corrected: This was for debugCanvasRef, which is now removed.
-        //   const mainCtx = canvasRef.current.getContext('2d');
-        //   mainCtx?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        //   console.log("Main canvas cleared on webcam start.");
-        // }
+        // If a camera is selected and valid, use it. Otherwise, ask for any video input.
+        const constraints = selectedCamera && availableCameras.some(cam => cam.deviceId === selectedCamera)
+          ? { video: { deviceId: selectedCamera } } 
+          : { video: true };
+        
+        console.log("Requesting webcam with constraints:", constraints);
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        console.log("Webcam stream acquired.");
 
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: selectedCamera } });
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play();
-          setIsWebcamActive(true); // This will trigger the useEffect to start the loop
-          console.log("Webcam started, isWebcamActive set to true.");
-          // detectWebcamFrame(); // Removed direct call
-        };
+        // After successfully getting the stream (and thus permission),
+        // re-enumerate devices to get full list with labels and update selection.
+        await enumerateAvailableCameras(); 
+
+        if (videoRef.current) { // Re-check videoRef as operations are async
+            videoRef.current.srcObject = stream;
+            videoRef.current.onloadedmetadata = () => {
+              videoRef.current?.play();
+              setIsWebcamActive(true); 
+              console.log("Webcam started, isWebcamActive set to true.");
+            };
+        } else {
+            console.warn("videoRef became null after acquiring stream and enumerating cameras.");
+            stream.getTracks().forEach(track => track.stop()); // Cleanup stream
+            setIsWebcamActive(false);
+        }
       } catch (err) {
-        console.error("Error starting webcam: ", err);
-        setIsWebcamActive(false); // Ensure state is false if start fails
+        console.error("Error starting webcam or getting permissions: ", err);
+        setIsWebcamActive(false); 
+        // Optionally, inform the user via UI about the permission error
       }
     }
   };
@@ -922,8 +947,12 @@ function App() {
                 </option>
               ))}
             </select>
-            <button onClick={isWebcamActive ? stopWebcam : startWebcam} disabled={!selectedCamera || !session || modelLoading} className="action-button">
-              {session ? (isWebcamActive ? "Stop Webcam" : "Start Webcam") : "Model..."}
+            <button 
+              onClick={isWebcamActive ? stopWebcam : startWebcam} 
+              disabled={!session || modelLoading}
+              className="action-button"
+            >
+              {session ? (isWebcamActive ? "Stop Webcam" : "Start Webcam") : "Model Loading..."}
             </button>
             <button onClick={() => {
               stopWebcam();
