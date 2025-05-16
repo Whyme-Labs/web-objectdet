@@ -1,0 +1,79 @@
+# Implementation Plan
+
+## Feature: Integrate ONNX Runtime with WebGPU for YOLOv11 Object Detection
+
+1.  **Initialize ONNX Runtime and Load Model**
+# Implementation Plan
+
+## Feature: Integrate ONNX Runtime with WebGPU for YOLOv11 Object Detection
+
+1.  **Initialize ONNX Runtime and Load Model**
+# Implementation Plan
+
+## Feature: Integrate ONNX Runtime with WebGPU for YOLOv11 Object Detection
+
+1.  **Initialize ONNX Runtime and Load Model**
+    *   [X] Add imports for `onnxruntime-web` (specifically `onnxruntime-web/webgpu`).
+    *   [X] Implement logic to initialize ONNX Runtime with WebGPU execution provider (attempted, with fallback to WASM).
+    *   [X] Load the YOLOv11 ONNX model (`/models/yolo11n.onnx`).
+    *   [X] Store the ONNX session in a React state (`session`).
+    *Done: Imported `onnxruntime-web/webgpu` and added `useEffect` hook in `src/App.tsx` to initialize and create an ONNX InferenceSession. Logic includes checking for WebGPU support and falling back to WASM if needed or if WebGPU initialization fails. The session is stored in component state.*
+
+2.  **Implement Inference Loop**
+    *   [X] Define the `detect` function structure.
+    *   [X] Add placeholders for `cv` (OpenCV.js), `CLASSES`, and `drawBox` function.
+    *   [X] Integrate webcam capture.
+    *   [X] Set up video and canvas elements in the React component.
+    *   [X] Call the `detect` function in a loop using `requestAnimationFrame` (within the `detect` function itself and initiated after webcam setup).
+    *Done: Added `detect` function with placeholders for OpenCV operations, class names, and drawing boxes. Added video and canvas elements and initiated webcam stream. The `detect` function is called recursively via `requestAnimationFrame`.* 
+
+3.  **Handle Dependencies (OpenCV.js)**
+    *   [X] Research and decide on how to include and use OpenCV.js (e.g., via a script tag, npm package) - Decided on script tag.
+    *   [X] Add OpenCV.js to the project - Added script tag to `index.html`.
+    *   [X] Ensure `cv.imread` and other `cv` functions are available - Added a readiness check (`isCvReady` state and effect) to wait for `cv` to load before use.
+    *Done: Added OpenCV.js via a script tag in `index.html`. The `cv` object in `App.tsx` relies on this global availability, and a readiness check polls for `window.cv` before proceeding with operations that depend on it.*
+
+4.  **Implement Helper Functions**
+    *   [X] Define or obtain the `CLASSES` array/object - Used standard COCO 80 class names.
+    *   [X] Implement the `drawBox` function to render bounding boxes on the canvas - Enhanced with dynamic colors per class, improved text styling, and bounds checking.
+    *Done: Populated `CLASSES_LIST` array (globally) in `src/App.tsx` with 80 COCO dataset class names. The `drawBox` function was improved to use unique colors for each class (based on a hash of the label), draw text with a background for better readability, and ensure drawing stays within canvas bounds.*
+
+5.  **Add UI Controls**
+    *   [X] Implement Camera Selector: Allow users to choose from available video input devices.
+    *   [X] Implement Object Class Selector: Allow users to select which object classes to detect and display.
+    *Done: Added a dropdown for camera selection, which fetches and lists available video devices. Added a list of checkboxes for selecting/deselecting object classes from `CLASSES_LIST`. The detection logic now respects selected classes.*
+
+6.  **Refine and Test**
+    *   [X] Test the complete object detection pipeline with new UI controls.
+    *   [X] Refine UI/UX for the selectors.
+    *   [X] Handle errors and edge cases (e.g., no cameras found, model loading issues).
+    *   [X] Troubleshoot WASM file loading issues (MIME type and public path import errors with Vite).
+    *Done: Completely redesigned and rebuilt the YOLOv11 detection pipeline based on proper ONNX processing standards. Fixed letterboxing to preserve aspect ratio, implemented standard YOLO pre/post-processing, added real performance metrics, and implemented class-aware Non-Maximum Suppression. Added direct tensor creation from raw pixel data to ensure reliable detection across all conditions.*
+
+7.  **Update Documentation**
+    *   [X] Update `README.md` with instructions on how to run the feature and any new dependencies.
+    *   [X] Update `README.md` to describe the new UI controls (Camera Selector, Class Selector).
+    *Done: Updated `README.md` with details about the YOLOv11 feature, ONNX Runtime, WebGPU, OpenCV.js integration, and the new UI controls.*
+
+8.  **Simplify to Static Image Detection**
+    *   [X] Remove webcam-related code (video element, camera selection, `detectLoop`).
+    *   [X] Implement loading and processing for a static test image (`test_image.jpg`).
+    *   [X] Update UI to trigger detection on the static image.
+    *Done: Refactored the application to remove all webcam-related functionality. The app now loads `test_image.jpg` on mount and provides a button to run detection on this static image. This was done to isolate and debug the ONNX model inference and post-processing pipeline.*
+
+9.  **Re-enable Webcam Detection**
+    *   [X] Restore webcam UI elements (video tag, camera selector).
+    *   [X] Re-implement webcam access and device enumeration.
+    *   [X] Adapt the working static image preprocessing (direct resize) for webcam frames.
+    *   [X] Adapt the working static image postprocessing (class score-based filtering, NMS) for webcam frames.
+    *   [X] Implement a continuous detection loop for the webcam feed using `requestAnimationFrame`.
+    *   [X] Ensure bounding boxes are correctly drawn on the live webcam feed.
+    *Done: Re-integrated webcam functionality. Users can now select a camera, start the webcam feed, and see live object detections. The preprocessing (direct resize) and postprocessing (class score-based filtering, NMS) logic is consistent with the previously verified static image detection pipeline. A useEffect hook now robustly manages the requestAnimationFrame loop for webcam processing.*
+
+10. **Enhance UI for Mode Selection and Image Upload**
+    *   [ ] Add state for detection mode (`initial`, `webcam`, `image`).
+    *   [ ] Display initial mode selection buttons ("Use Webcam", "Use Image").
+    *   [ ] Conditionally render UI based on selected mode.
+    *   [ ] Modify static image loading to be on-demand ("Use Test Image" button).
+    *   [ ] Implement image upload functionality (file input and drag-and-drop).
+    *   [ ] Ensure class selector is displayed appropriately in webcam/image modes.

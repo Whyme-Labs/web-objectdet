@@ -1,0 +1,264 @@
+/* General App Styles */
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#root {
+  width: 100%;
+  max-width: 1200px; /* Max width for the app */
+  margin: 0 auto;
+  padding: 1rem;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Container for controls */
+.controls-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px; /* Spacing between control groups */
+}
+
+/* Mode selection buttons styling */
+.mode-selection {
+  display: flex;
+  gap: 10px; /* Spacing between mode buttons */
+  margin-bottom: 10px;
+}
+
+/* Webcam specific controls */
+.webcam-controls, .image-controls {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.webcam-controls select {
+  min-width: 180px; /* Ensure select is not too small */
+}
+
+/* Image controls specific styling */
+.image-controls {
+  flex-direction: column; /* Stack image controls vertically for clarity */
+}
+
+.drop-zone {
+  border: 2px dashed #007bff; /* Primary color dashed border */
+  padding: 25px; /* Increased padding */
+  text-align: center;
+  cursor: pointer;
+  background-color: #f0f8ff; /* Light blue background */
+  color: #007bff; /* Primary color text */
+  width: 90%; /* Make dropzone wider within its container */
+  max-width: 450px; /* Max width */
+  min-height: 80px; /* Ensure it has some height */
+  display: flex;
+  flex-direction: column; /* Stack text and any future elements like an icon */
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px; /* Rounded corners */
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  margin-top: 10px; /* Add some margin */
+  margin-bottom: 10px;
+}
+
+.drop-zone:hover {
+  border-color: #0056b3; /* Darker primary on hover */
+  background-color: #e6f2ff; /* Slightly darker blue on hover */
+}
+
+/* Media display area (canvas/video) */
+.media-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 640px; /* Limit width of media display */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.media-display canvas, .media-display video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* Class selector styling */
+.class-selector-container {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-top: 20px;
+  text-align: left;
+}
+
+.class-selector-container h4 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.class-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive grid */
+  gap: 10px;
+}
+
+.class-selector-item {
+  display: flex;
+  align-items: center;
+  background-color: #f9f9f9;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.class-selector-item input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.class-selector-item label {
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Stats display */
+.stats-display {
+  background-color: rgba(240, 240, 240, 0.9);
+  padding: 8px 12px; /* Adjusted padding */
+  border-radius: 5px;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  font-size: 0.85em; /* Slightly smaller font */
+  text-align: center; /* Center the inline stats */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex; /* Use flex for centering and spacing if needed */
+  justify-content: center;
+  flex-wrap: wrap; /* Allow wrapping if space is too tight */
+  gap: 5px; /* Space between stat items if they wrap */
+}
+
+.stats-display span {
+  margin-right: 5px; /* Space between stat items */
+  white-space: nowrap; /* Prevent individual stats from wrapping */
+}
+
+.stats-display span:last-child {
+  margin-right: 0; /* No margin for the last item */
+}
+
+/* Common styling for action buttons */
+.action-button {
+  padding: 10px 18px; /* Increased padding */
+  margin: 5px;
+  border: 1px solid #007bff; /* Primary color border */
+  border-radius: 5px; /* Slightly more rounded */
+  background-color: #007bff; /* Primary color background */
+  color: white; /* White text */
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500; /* Slightly bolder text */
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.1s ease;
+  text-align: center;
+  text-decoration: none; /* Remove underline if it's an <a> styled as button */
+  display: inline-flex; /* Align icon and text if any */
+  align-items: center;
+  justify-content: center;
+}
+
+.action-button:hover:not(:disabled) {
+  background-color: #0056b3; /* Darker shade on hover */
+  border-color: #004085;
+  box-shadow: 0 2px 5px rgba(0,123,255,0.2); /* Subtle shadow for primary color */
+  transform: translateY(-1px); /* Slight lift effect */
+}
+
+.action-button:active:not(:disabled) {
+  transform: translateY(0px); /* Press effect */
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.action-button:disabled {
+  background-color: #c0c0c0; /* Grey background for disabled */
+  color: #666666;
+  border-color: #b0b0b0;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Specific styling for select element if it has action-button class */
+select.action-button {
+  background-color: white; /* Selects usually have white background */
+  color: #333; /* Dark text for readability */
+  border: 1px solid #ccc; /* Standard border for select */
+}
+
+select.action-button:hover:not(:disabled) {
+  border-color: #007bff; /* Highlight with primary color on hover */
+  background-color: #f8f9fa; /* Slight background change */
+}
+
+/* Info text styling (e.g., for loading messages) */
+.info-text {
+  color: #555;
+  font-style: italic;
+  margin: 10px 0;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
